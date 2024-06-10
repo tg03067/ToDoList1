@@ -31,7 +31,8 @@
         SELECT garden_dt AS managementDate, garden_gb AS gardening
         FROM garden_master
         WHERE garden_user_seq = #{userSeq}
-        AND garden_dt = #{managementDate}
+          AND MONTH(garden_dt) = #{managementDate}
+          AND #{managementDate} BETWEEN 1 AND 12
     </select>
 
     <select id="selScheduleManagementDay">
@@ -41,8 +42,8 @@
                 , plantName
                 , CEIL(COUNT(*) OVER() / #{size}) AS totalPage
                 , COUNT(*) OVER() AS totalElement
-        FROM garden_master A
-        INNER JOIN (
+          FROM garden_master A
+         INNER JOIN (
             SELECT B.odata_image AS plantPic
                     , B.odata_name AS plantName,
             FROM plant_master A
@@ -50,8 +51,10 @@
             ON A.plant_odata_seq = B.odata_seq
             WHERE garden_user_seq = #{userSeq}
         ) B
+           ON A.garden_user_seq = B.garden_user_seq
         WHERE garden_user_seq = #{userSeq}
-        AND garden_dt = #{managementDate}
+          AND DAY(garden_dt) = #{managementDate}
+          AND #{managementDate} BETWEEN 1 AND 31
     </select>
 
     <select id="selScheduleManagementDetail">
@@ -60,8 +63,8 @@
                 , B.plantPic
                 , B.plantName
                 , A.garden_text = #{contents}
-        FROM garden_master A
-        INNER JOIN (
+          FROM garden_master A
+         INNER JOIN (
             SELECT B.odata_image AS plantPic
                     , B.odata_name AS plantName,
             FROM plant_master A
@@ -69,9 +72,11 @@
             ON A.plant_odata_seq = B.odata_seq
             WHERE garden_user_seq = #{userSeq}
         ) B
+           ON A.garden_user_seq = B.garden_user_seq
         WHERE garden_user_seq = #{userSeq}
-          AND garden_dt = #{managementDate}
+          AND DAY(garden_dt) = #{managementDate}
           AND garden_seq = #{plantManagementSeq}
+          AND #{managementDate} BETWEEN 1 AND 31
     </select>
 
 </mapper>
