@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.green.todolist1.schedule.management.ScheduleManagementMapper">
+
+    <insert id="insScheduleManagement" keyProperty="gardenSeq" useGeneratedKeys="true">
+        INSERT INTO garden_master
+        SET garden_user_seq = #{userSeq}
+        , garden_plant_seq = #{plantSeq}
+        , garden_gb = #{gardening}
+        , garden_dt = #{managementDate}
+        , garden_text = #{contents}
+    </insert>
+
+    <delete id="delScheduleManagement">
+        DELETE FROM garden_master
+        WHERE garden_user_seq = #{userSeq}
+          AND garden_seq = #{plantManagementSeq}
+    </delete>
+
+    <update id="updateScheduleManagement">
+        UPDATE garden_master
+        SET garden_gb = #{gardening}
+        , garden_text = #{contents}
+        WHERE garden_user_seq = #{userSeq}
+          AND garden_plant_seq = #{plantManagementSeq}
+    </update>
+
+    <select id="selScheduleManagementMonth">
+        SELECT garden_dt AS managementDate, garden_gb AS gardening
+        FROM garden_master
+        WHERE garden_user_seq = #{userSeq}
+        AND garden_dt = #{managementDate}
+    </select>
+
+    <select id="selScheduleManagementDay">
+        SELECT A.garden_dt AS managementDate
+                , A.garden_gb AS gardening
+                , B.plantPic
+                , plantName
+                , CEIL(COUNT(*) OVER() / #{size}) AS totalPage
+                , COUNT(*) OVER() AS totalElement
+        FROM garden_master A
+        INNER JOIN (
+            SELECT B.odata_image AS plantPic
+                    , B.odata_name AS plantName,
+            FROM plant_master A
+            INNER JOIN opendata B
+            ON A.plant_odata_seq = B.odata_seq
+            WHERE garden_user_seq = #{userSeq}
+        ) B
+        WHERE garden_user_seq = #{userSeq}
+        AND garden_dt = #{managementDate}
+    </select>
+
+    <select id="selScheduleManagementDetail">
+        SELECT A.garden_dt AS managementDate
+                , A.garden_gb AS gardening
+                , B.plantPic
+                , B.plantName
+                , A.garden_text = #{contents}
+        FROM garden_master A
+        INNER JOIN (
+            SELECT B.odata_image AS plantPic
+                    , B.odata_name AS plantName,
+            FROM plant_master A
+            INNER JOIN opendata B
+            ON A.plant_odata_seq = B.odata_seq
+            WHERE garden_user_seq = #{userSeq}
+        ) B
+        WHERE garden_user_seq = #{userSeq}
+          AND garden_dt = #{managementDate}
+          AND garden_seq = #{plantManagementSeq}
+    </select>
+
+</mapper>
